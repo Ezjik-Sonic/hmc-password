@@ -1,0 +1,46 @@
+---
+- name: Созадем пароль в TPM
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - ~/hosts.yml
+  become: no
+
+  tasks:
+
+    - name: Настройки доступа
+      ansible.builtin.include_vars:
+        file: ~/.hmac
+      no_log: true
+
+    - name: Создаем новый пароль в  tpm
+      shell: "python3 create_pass.py {{item}} create {{ url }} {{ public_key }} {{ private_key }}" 
+      register: result_password
+      loop: "{{ hosts }}"
+      loop_control:
+        label: "{{ item }}"
+      ignore_errors: yes
+
+    - name: Создаем динамическое инвентори
+      add_host:
+        name: "{{ item.item }}"
+        ansible_host: "{{ item.item }}"
+        groups: nodes_to_run_on
+        password: "{{item.stdout}}"
+      loop: "{{ result_password.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: item.stdout != ""
+      no_log: true
+
+
+- hosts: nodes_to_run_on
+  gather_facts: false
+  become: yes
+  tasks:
+
+    - name: Меня пароль на хосте
+      user:
+        name: root
+        password:  "{{ password | password_hash('sha512') }}"
+        update_password: always

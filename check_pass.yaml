@@ -1,0 +1,26 @@
+---
+- name: Проверяем существующие записи в TPM
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - ~/hosts.yml
+  become: no
+
+  tasks:
+
+    - name: Настройки доступа
+      ansible.builtin.include_vars:
+        file: ~/.hmac
+
+    - name: Проверяем что пароль существует ищем только для пользователя  root
+      shell: "python3 create_pass.py {{item}} check {{ url }} {{ public_key }} {{ private_key }}" 
+      register: result_password
+      no_log: true
+      loop: "{{ hosts }}"
+
+    - name: Пароль существуют для
+      debug:
+        msg: "{{ item.stdout_lines }}"
+      loop: "{{ result_password.results }}"
+      loop_control:
+        label: "{{ item.item }}"
