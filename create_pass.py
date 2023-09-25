@@ -78,7 +78,7 @@ def generatePassword():
 def create_password():
     path = 'api/v5/passwords.json'
     newPassword = generatePassword()
-    data = json.dumps({"name": hostname, "project_id":6, "username": "root", "password": newPassword['password']})
+    data = json.dumps({"name": hostname, "project_id": projectID, "username": "root", "password": newPassword['password']})
 
     head = create_head(path=path, data=data)
     url1 = url + path
