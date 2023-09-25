@@ -13,8 +13,7 @@ mode = sys.argv[2]
 url = sys.argv[3]
 public= sys.argv[4]
 private= sys.argv[5]
-projectID = '6' # UNIX
-# projectID = '6' # test
+projectID = '6' 
 
 
 
